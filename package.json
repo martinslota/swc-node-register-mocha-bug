@@ -1,0 +1,33 @@
+{
+  "name": "swc-node-register-mocha-bug",
+  "version": "1.0.0",
+  "description": "Minimal-ish reproduce of a bug around @swc-node/register when used with Mocha",
+  "type": "module",
+  "scripts": {
+    "postinstall": "patch-package",
+    "test": "node --import @swc-node/register/esm-register node_modules/mocha/bin/mocha test.spec.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/martinslota/swc-node-register-mocha-bug.git"
+  },
+  "keywords": [
+    "@swc-node/register",
+    "mocha",
+    "bug"
+  ],
+  "author": "Martin Slota",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/martinslota/swc-node-register-mocha-bug/issues"
+  },
+  "homepage": "https://github.com/martinslota/swc-node-register-mocha-bug#readme",
+  "devDependencies": {
+    "@swc-node/register": "^1.9.0",
+    "@tsconfig/strictest": "^2.0.4",
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^20.11.30",
+    "mocha": "^10.4.0",
+    "patch-package": "^8.0.0"
+  }
+}

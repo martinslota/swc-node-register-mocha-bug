@@ -1,0 +1,27 @@
+diff --git a/node_modules/@swc-node/register/esm/esm.mjs b/node_modules/@swc-node/register/esm/esm.mjs
+index 5494102..552e640 100644
+--- a/node_modules/@swc-node/register/esm/esm.mjs
++++ b/node_modules/@swc-node/register/esm/esm.mjs
+@@ -27,13 +27,18 @@ export const resolve = async (specifier, context, nextResolve) => {
+         return nextResolve(specifier);
+     }
+     const { resolvedModule } = ts.resolveModuleName(specifier, fileURLToPath(context.parentURL), tsconfig, host, moduleResolutionCache);
++
++    const isTsModule = resolvedModule
++        ? EXTENSIONS.includes(resolvedModule.extension) && !resolvedModule.resolvedFileName.includes('/node_modules/')
++        : EXTENSIONS.some((ext) => specifier.endsWith(ext)) && !fileURLToPath(specifier).includes('/node_modules/');
++
+     // import from local project to local project TS file
+-    if (resolvedModule &&
+-        !resolvedModule.resolvedFileName.includes('/node_modules/') &&
+-        EXTENSIONS.includes(resolvedModule.extension)) {
++    if (isTsModule) {
+         return {
+             format: 'ts',
+-            url: pathToFileURL(resolvedModule.resolvedFileName).href,
++            url: resolvedModule
++                ? pathToFileURL(resolvedModule.resolvedFileName).href
++                : pathToFileURL(fileURLToPath(specifier)).href,
+             shortCircuit: true,
+         };
+     }
