@@ -1,4 +1,4 @@
-# Bull pause/resume bug reproduce
+# `@swc-node/register` + Mocha bug example
 
 A minimal-ish example demonstrating a bug around
 [@swc-node/register](https://github.com/swc-project/swc-node/tree/master/packages/register)
