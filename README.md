@@ -11,21 +11,23 @@ When Mocha is used to run test files written in Typescript along with
 thrown:
 
 ```
-Exception during run: TypeError [ERR_UNKNOWN_FILE_EXTENSION]: Unknown file extension ".ts" for /path/to/swc-node-register-mocha-bug/test.spec.ts
-    at Object.getFileProtocolModuleFormat [as file:] (node:internal/modules/esm/get_format:160:9)
-    at defaultGetFormat (node:internal/modules/esm/get_format:203:36)
-    at defaultLoad (node:internal/modules/esm/load:143:22)
-    at async nextLoad (node:internal/modules/esm/hooks:865:22)
-    at async nextLoad (node:internal/modules/esm/hooks:865:22)
-    at async Hooks.load (node:internal/modules/esm/hooks:448:20)
-    at async MessagePort.handleMessage (node:internal/modules/esm/worker:196:18) {
-  code: 'ERR_UNKNOWN_FILE_EXTENSION'
+file:///path/to/swc-node-register-mocha-bug/node_modules/mocha/bin/mocha.js:9
+ */ const { loadOptions } = require('../lib/cli/options');
+                            ^
+
+ReferenceError: require is not defined in ES module scope, you can use import instead
+    at file:///path/to/swc-node-register-mocha-bug/node_modules/mocha/bin/mocha.js:9:29
+    at ModuleJob.run (node:internal/modules/esm/module_job:218:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:329:24)
+    at async loadESM (node:internal/process/esm_loader:28:7)
+    at async handleMainPromise (node:internal/modules/run_main:113:12)
+
+Node.js v20.11.0
 ```
 
 To observe the bug in action, perform the following steps:
 
 1. Make a clone of this repository.
-1. Remove `patches/@swc-node+register+1.9.0.patch`.
 1. Run `npm ci`.
 1. Run `npm test`.
 
@@ -34,36 +36,39 @@ The output should look roughly like this:
 ```
 $ npm test
 
-> swc-node-register-mocha-bug@1.0.0 test
+> swc-node-register-mocha-bug@2.0.0 test
 > node --import @swc-node/register/esm-register node_modules/mocha/bin/mocha test.spec.ts
 
+file:///path/to/swc-node-register-mocha-bug/node_modules/mocha/bin/mocha.js:9
+ */ const { loadOptions } = require('../lib/cli/options');
+                            ^
 
- Exception during run: TypeError [ERR_UNKNOWN_FILE_EXTENSION]: Unknown file extension ".ts" for /path/to/swc-node-register-mocha-bug/test.spec.ts
-    at Object.getFileProtocolModuleFormat [as file:] (node:internal/modules/esm/get_format:160:9)
-    at defaultGetFormat (node:internal/modules/esm/get_format:203:36)
-    at defaultLoad (node:internal/modules/esm/load:143:22)
-    at async nextLoad (node:internal/modules/esm/hooks:865:22)
-    at async nextLoad (node:internal/modules/esm/hooks:865:22)
-    at async Hooks.load (node:internal/modules/esm/hooks:448:20)
-    at async MessagePort.handleMessage (node:internal/modules/esm/worker:196:18) {
-  code: 'ERR_UNKNOWN_FILE_EXTENSION'
-}
+ReferenceError: require is not defined in ES module scope, you can use import instead
+    at file:///path/to/swc-node-register-mocha-bug/node_modules/mocha/bin/mocha.js:9:29
+    at ModuleJob.run (node:internal/modules/esm/module_job:218:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:329:24)
+    at async loadESM (node:internal/process/esm_loader:28:7)
+    at async handleMainPromise (node:internal/modules/run_main:113:12)
+
+Node.js v20.11.0
 ```
 
-The removed patch contains a hacky way to resolve the issue. To see it in
-action, perform the following steps:
-
-1. `git checkout patches/@swc-node+register+1.9.0.patch`.
-1. Run `npm ci`.
-1. Run `npm test`.
-
-The output should then look as follows:
+The issue disappears if the code gets transpiled using `swc` instead:
 
 ```
-$ npm test
+$ npm run test-transpiled
 
-> swc-node-register-mocha-bug@1.0.0 test
-> node --import @swc-node/register/esm-register node_modules/mocha/bin/mocha test.spec.ts
+> swc-node-register-mocha-bug@2.0.0 pretest-transpiled
+> npm run build
+
+
+> swc-node-register-mocha-bug@2.0.0 build
+> swc -d ./dist --delete-dir-on-start --ignore ./node_modules,./dist .
+
+Successfully compiled: 1 file with swc (42.81ms)
+
+> swc-node-register-mocha-bug@2.0.0 test-transpiled
+> mocha dist/test.spec.js
 
 
 
